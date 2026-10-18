@@ -1,5 +1,5 @@
 ---
-pagetitle: "Your Project Title"
+pagetitle: "ECE 484 Drone Race by ZJUI Meta"
 format:
   html:
     toc: false
@@ -8,7 +8,7 @@ format:
 
 ::: {.hero-section}
 
-# Your Project Title Here {.title}
+# ECE 484 Drone Race by ZJUI Meta {.title}
 
 ::: {.subtitle}
 A catchy one-line description of your project
@@ -16,15 +16,16 @@ A catchy one-line description of your project
 
 ::: {.author-list}
 
-[**Author One**](https://example.com)^1^,
-[**Author Two**](https://example.com)^2^,
-[**Author Three**](https://example.com)^1,2^
+[**Hanbin Zheng**](https://github.com/hanbinzheng)^1,2^,
+[**Shengrui Wang**](https://github.com/LunateELf)^1,2^,
+[**Siyuan Wang**](https://github.com/mikkke117)^1,2^
+[**Xiang Li**](https://github.com/lx2005Jim)^1,2^
 
 :::
 
 ::: {.affiliation-list}
 
-^1^University Name,  ^2^Research Lab / Company
+^1^University of Illinois at Urbana-Champaign,  ^2^Zhejiang University
 
 :::
 
