@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "Project Title"
+  title: "ECE 484 Drone Race by ZJUI Meta"
   navbar:
     background: light
     left:
