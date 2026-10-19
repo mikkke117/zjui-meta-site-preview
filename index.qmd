@@ -1,5 +1,5 @@
 ---
-pagetitle: "ECE 484 Drone Race by ZJUI Meta"
+pagetitle: "ECE 484 Drone Race by team ZJUI Meta"
 format:
   html:
     toc: false
@@ -8,10 +8,10 @@ format:
 
 ::: {.hero-section}
 
-# ECE 484 Drone Race by ZJUI Meta {.title}
+# ECE 484 Drone Race by team ZJUI Meta {.title}
 
 ::: {.subtitle}
-A catchy one-line description of your project
+Gate-crashers wanted: build controllers that thread a Crazyflie through wind, gusts and tight turns in sim, then race it for real.
 :::
 
 ::: {.author-list}
@@ -71,16 +71,28 @@ A catchy one-line description of your project
 ## Abstract {.section-title}
 
 ::: {.abstract-text}
-Replace this text with your project abstract. Describe the problem you are
-solving, the key insight or contribution of your work, and the main results.
-Keep it concise — typically 150–250 words. You can use **bold** and *italic*
-formatting to emphasize key terms.
+We develop controllers that fly a **Crazyflie 2.1** quadrotor through
+gate-based race tracks autonomously, both in the *crazyflow* MuJoCo simulator
+and on real hardware in a motion-capture arena. To score, the drone has to
+finish five laps without a collision. Hidden evaluation tracks make this harder
+with randomized start poses, tight 180° hairpins, stationary obstacles, steady
+wind and gusts, collision impulses, battery sag and motor imbalance.
 
-For example: We present a novel approach to [task] that achieves
-state-of-the-art results on [benchmark]. Our method leverages [key technique]
-to overcome [limitation of prior work]. Experiments demonstrate that our
-approach outperforms existing methods by [metric improvement] while requiring
-[efficiency gain].
+Our approach separates **planning** from **control**. Before takeoff, a
+geometric planner turns the gate layout into a time-parameterized
+**cubic-spline trajectory**. It places waypoints before, at and after each gate
+so the drone crosses every gate head-on, and it adds detour waypoints whenever
+the next gate lies behind the drone. Segments that exceed an acceleration
+budget are retimed, so the drone slows down only in tight turns. An iterative
+repair step then pushes the path clear of any gate frame or stand it still
+touches. A **cascaded attitude controller** tracks this reference: a PID
+position loop with acceleration feedforward computes a desired thrust vector,
+which is mapped through the drone's identified thrust and attitude model into
+collective-thrust and roll/pitch commands, with limits on tilt and thrust.
+
+Next, we will add a state-command controller, stress-test both controllers
+against every disturbance in simulation, and transfer the better one to the
+Crazyflie for the final race.
 :::
 
 :::
