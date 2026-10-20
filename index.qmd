@@ -222,6 +222,62 @@ under randomized disturbances is still pending.
 
 :::
 
+::: {.section-container}
+
+## Evaluation Plan {.section-title}
+
+::: {.content-text}
+
+### 1. Metrics
+
+- **Completion rate**
+- **Collisions**
+- **Lap time**
+- **Control latency**
+
+### 2. Test Protocol
+
+- Compare **classical vs. learning-based control**.
+- Run repeated trials with **matched seeds** for both controllers.
+
+### 3. Generalization
+
+- Evaluate on all **three tracks** first.
+- Then run **noise** and **dynamics stress tests**.
+
+:::
+
+:::
+
+::: {.section-container}
+
+## Risks {.section-title}
+
+::: {.content-text}
+
+- **Fixed planned path:** the spline reference does not adapt during flight.
+- **Unseen conditions:** performance may drop outside the tested settings.
+- **Learning stability:** training of the learning-based controller may be unstable.
+
+:::
+
+:::
+
+::: {.section-container}
+
+## Team Roles {.section-title}
+
+::: {.content-text}
+
+- **Hanbin:** classical control / planning
+- **Xiang:** learning / training
+- **Shengrui:** evaluation
+- **Siyuan:** simulation integration / presentation
+
+:::
+
+:::
+
 
 <!-- ============================================================ -->
 <!-- QUALITATIVE COMPARISONS -->
@@ -318,6 +374,18 @@ Check out [this survey](https://example.com) for a comprehensive overview of the
 
 :::
 -->
+
+
+::: {.section-container}
+
+## References {.section-title}
+
+::: {.content-text}
+
+- [ECE 484 Fall 2026 Quadrotor Project](https://safeautonomy-illinois.github.io/ece484-site/fall-2026/projects/quadrotor/)
+:::
+
+:::
 
 
 <!-- ============================================================ -->
