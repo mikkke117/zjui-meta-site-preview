@@ -97,7 +97,7 @@ position loop with acceleration feedforward computes a desired thrust vector,
 which is mapped through the drone's identified thrust and attitude model into
 collective-thrust and roll/pitch commands, with limits on tilt and thrust.
 
-Next, we will add a state-command controller, stress-test both controllers
+Next, we will add a learning-based controller, stress-test both controllers
 against every disturbance in simulation, and transfer the better one to the
 Crazyflie for the final race.
 :::
@@ -123,6 +123,32 @@ Crazyflie for the final race.
 
 :::
 -->
+
+
+::: {.section-container}
+
+## Plan and Preliminary Work {.section-title}
+
+::: {.columns}
+
+::: {.column .content-text width="42%"}
+
+- **Available:** simulator, observations and three tracks.
+- **Implemented:** spline planning, position PID and feedforward.
+- **Planned:** learning-based control (method TBD).
+- **Initial simulations:** five laps on all three tracks, one run each.
+
+:::
+
+::: {.column width="58%"}
+
+![Control architecture: the spline + PID controller is implemented; the learning-based controller is planned.](static/images/plan-diagram.jpg)
+
+:::
+
+:::
+
+:::
 
 
 <!-- ============================================================ -->
@@ -157,6 +183,100 @@ reader should observe and why it matters.
 
 :::
 -->
+
+
+::: {.section-container}
+
+## Preliminary Results {.section-title}
+
+::: {.content-text}
+We evaluated the spline planner and the cascaded attitude controller in the
+*crazyflow* simulator on three tracks: **circle**, **U-turn** and
+**figure-eight**. In each plot, the dashed gray line is the planned reference,
+the colored line is the flown trajectory shaded by speed, orange bars are
+gates with red arrows showing the crossing direction, and × marks an obstacle.
+
+The drone finished all five laps on every track and passed every gate
+(20, 20 and 30 gates), reaching speeds close to 2 m/s. Mean tracking error
+stayed between 0.052 m and 0.058 m, and the maximum error was 0.133 m.
+
+These numbers come from one run per track with seed 0. Repeated evaluation
+under randomized disturbances is still pending.
+:::
+
+::: {.results-grid}
+
+::: {.result-card}
+![Circle track: 5 laps in 35.44 s, mean tracking error 0.052 m.](static/images/simulation1.jpg)
+:::
+
+::: {.result-card}
+![U-turn track: 5 laps in 27.00 s, mean tracking error 0.058 m.](static/images/simulation2.jpg)
+:::
+
+::: {.result-card}
+![Figure-eight track: 5 laps in 40.88 s, mean tracking error 0.057 m.](static/images/simulation3.jpg)
+:::
+
+:::
+
+:::
+
+::: {.section-container}
+
+## Evaluation Plan {.section-title}
+
+::: {.content-text}
+
+### 1. Metrics
+
+- **Completion rate**
+- **Collisions**
+- **Lap time**
+- **Control latency**
+
+### 2. Test Protocol
+
+- Compare **classical vs. learning-based control**.
+- Run repeated trials with **matched seeds** for both controllers.
+
+### 3. Generalization
+
+- Evaluate on all **three tracks** first.
+- Then run **noise** and **dynamics stress tests**.
+
+:::
+
+:::
+
+::: {.section-container}
+
+## Risks {.section-title}
+
+::: {.content-text}
+
+- **Fixed planned path:** the spline reference does not adapt during flight.
+- **Unseen conditions:** performance may drop outside the tested settings.
+- **Learning stability:** training of the learning-based controller may be unstable.
+
+:::
+
+:::
+
+::: {.section-container}
+
+## Team Roles {.section-title}
+
+::: {.content-text}
+
+- **Hanbin:** classical control / planning
+- **Xiang:** learning / training
+- **Shengrui:** evaluation
+- **Siyuan:** simulation integration / presentation
+
+:::
+
+:::
 
 
 <!-- ============================================================ -->
@@ -254,6 +374,18 @@ Check out [this survey](https://example.com) for a comprehensive overview of the
 
 :::
 -->
+
+
+::: {.section-container}
+
+## References {.section-title}
+
+::: {.content-text}
+
+- [ECE 484 Fall 2026 Quadrotor Project](https://safeautonomy-illinois.github.io/ece484-site/fall-2026/projects/quadrotor/)
+:::
+
+:::
 
 
 <!-- ============================================================ -->
