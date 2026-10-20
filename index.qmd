@@ -31,11 +31,15 @@ Gate-crashers wanted: build controllers that thread a Crazyflie through wind, gu
 
 ::: {.button-row}
 
+<!--
 [[{{< fa file-pdf >}} Paper]{.btn-text}](https://arxiv.org/pdf/XXXX.XXXXX){.btn .btn-primary}
 [[{{< fa brands arxiv >}} arXiv]{.btn-text}](https://arxiv.org/abs/XXXX.XXXXX){.btn .btn-primary}
 [[{{< fa video >}} Video]{.btn-text}](https://www.youtube.com/watch?v=cSQTZoZPJzs&list=PLN1LPImPw_PlDRy10sDskVGszKZcbXaDn&index=2){.btn .btn-primary}
-[[{{< fa brands github >}} Code]{.btn-text}](https://github.com/){.btn .btn-primary}
+-->
+[[{{< fa brands github >}} Code]{.btn-text}](https://github.com/safeautonomy-illinois-students/fa26_ece484_final_project_code_team_ZJUI_Meta){.btn .btn-primary}
+<!--
 [[{{< fa database >}} Data]{.btn-text}](https://example.com){.btn .btn-primary}
+-->
 
 :::
 
@@ -51,7 +55,10 @@ Gate-crashers wanted: build controllers that thread a Crazyflie through wind, gu
 ::: {.hero-teaser}
 
 <!-- Option A: Use a static image as the teaser -->
+<!--
 ![Teaser figure showing your method overview or key result.](static/images/placeholder-teaser.svg){.teaser-img}
+-->
+![Three of us come from ZJUI Meta Robotics team.](static/images/teaser.jpg){.teaser-img}
 
 <!-- Option B: Embed a video teaser (uncomment below, comment out image above)
 {{< video static/videos/teaser.mp4 >}}
@@ -102,22 +109,27 @@ Crazyflie for the final race.
 <!-- OVERVIEW / METHOD VIDEO -->
 <!-- ============================================================ -->
 
+<!--
 ::: {.section-container}
 
 ## Video {.section-title}
 
 ::: {.video-container}
+-->
 <!-- Replace with your YouTube or local video embed -->
+<!--
 {{< video https://www.youtube.com/embed/cSQTZoZPJzs >}}
 :::
 
 :::
+-->
 
 
 <!-- ============================================================ -->
 <!-- RESULTS GALLERY -->
 <!-- ============================================================ -->
 
+<!--
 ::: {.section-container}
 
 ## Results {.section-title}
@@ -144,12 +156,14 @@ reader should observe and why it matters.
 :::
 
 :::
+-->
 
 
 <!-- ============================================================ -->
 <!-- QUALITATIVE COMPARISONS -->
 <!-- ============================================================ -->
 
+<!--
 ::: {.section-container}
 
 ## Qualitative Comparisons {.section-title}
@@ -176,12 +190,14 @@ what should the reader look for in the side-by-side results.
 :::
 
 :::
+-->
 
 
 <!-- ============================================================ -->
 <!-- INTERACTIVE SLIDER (Optional) -->
 <!-- ============================================================ -->
 
+<!--
 ::: {.section-container}
 
 ## Interpolation Demo {.section-title}
@@ -213,12 +229,14 @@ interactive slider here. The example below shows how to set one up.
 :::
 
 :::
+-->
 
 
 <!-- ============================================================ -->
 <!-- RELATED WORK -->
 <!-- ============================================================ -->
 
+<!--
 ::: {.section-container}
 
 ## Related Work {.section-title}
@@ -235,12 +253,14 @@ Check out [this survey](https://example.com) for a comprehensive overview of the
 :::
 
 :::
+-->
 
 
 <!-- ============================================================ -->
 <!-- BIBTEX -->
 <!-- ============================================================ -->
 
+<!--
 ::: {.section-container}
 
 ## BibTeX {.section-title}
@@ -255,6 +275,7 @@ Check out [this survey](https://example.com) for a comprehensive overview of the
 ```
 
 :::
+-->
 
 
 <!-- ============================================================ -->
