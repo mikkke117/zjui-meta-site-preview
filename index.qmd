@@ -1,414 +1,551 @@
 ---
-pagetitle: "ECE 484 Drone Race by team ZJUI Meta"
+pagetitle: "Crazy Drone | ECE 484 Team ZJUI Meta"
+description: "A Crazyflie 2.1 races through gates under wind, shifted gates and partial observability. A model predictive contouring controller finishes 90/90 simulated races; a 67k-parameter network ensemble distilled from it finishes 88/90 at 5x lower cost per step."
 format:
   html:
     toc: false
     page-layout: full
 ---
 
-::: {.hero-section}
+<!-- ============================================================ -->
+<!-- HERO -->
+<!-- ============================================================ -->
 
-# ECE 484 Drone Race by team ZJUI Meta {.title}
+::: {.hero}
+
+::: {.venue}
+ECE 484 Principles of Safe Autonomy, UIUC, Fall 2026. Team ZJUI Meta
+:::
+
+# Crazy Drone {.title}
 
 ::: {.subtitle}
-Gate-crashers wanted: build controllers that thread a Crazyflie through wind, gusts and tight turns in sim, then race it for real.
+Contouring MPC and a Distilled Neural Tracker for Crazyflie Racing
 :::
 
 ::: {.author-list}
-
-[**Hanbin Zheng**](https://github.com/hanbinzheng)^1,2^,
-[**Shengrui Wang**](https://github.com/LunateELf)^1,2^,
-[**Siyuan Wang**](https://github.com/mikkke117)^1,2^
-[**Xiang Li**](https://github.com/lx2005Jim)^1,2^
-
+[[Hanbin Zheng](https://hanbinzheng.github.io/)^1,2^]{.author}
+[[Shengrui Wang](https://github.com/LunateELf)^1,2^]{.author}
+[[Siyuan Wang](https://github.com/mikkke117)^1,2^]{.author}
+[[Xiang Li](https://github.com/lx2005Jim)^1,2^]{.author}
 :::
 
 ::: {.affiliation-list}
-
-^1^University of Illinois at Urbana-Champaign,  ^2^Zhejiang University
-
+^1^University of Illinois Urbana-Champaign ^2^Zhejiang University
 :::
 
 ::: {.button-row}
-
-<!--
-[[{{< fa file-pdf >}} Paper]{.btn-text}](https://arxiv.org/pdf/XXXX.XXXXX){.btn .btn-primary}
-[[{{< fa brands arxiv >}} arXiv]{.btn-text}](https://arxiv.org/abs/XXXX.XXXXX){.btn .btn-primary}
-[[{{< fa video >}} Video]{.btn-text}](https://www.youtube.com/watch?v=cSQTZoZPJzs&list=PLN1LPImPw_PlDRy10sDskVGszKZcbXaDn&index=2){.btn .btn-primary}
--->
-[[{{< fa brands github >}} Code]{.btn-text}](https://github.com/safeautonomy-illinois-students/fa26_ece484_final_project_code_team_ZJUI_Meta){.btn .btn-primary}
-<!--
-[[{{< fa database >}} Data]{.btn-text}](https://example.com){.btn .btn-primary}
--->
-
+[{{< fa brands github >}} Code](https://github.com/safeautonomy-illinois-students/fa26_ece484_final_project_code_team_ZJUI_Meta){.btn-link}
+[{{< fa brands youtube >}} Videos](#videos){.btn-link}
+[{{< fa file-pdf >}} MPCC report](static/pdfs/mpcc_report.pdf){.btn-link}
+[{{< fa file-pdf >}} Distillation report](static/pdfs/distill_report.pdf){.btn-link}
+[{{< fa graduation-cap >}} Course project](https://safeautonomy-illinois.github.io/ece484-site/fall-2026/projects/quadrotor/){.btn-link}
 :::
 
 :::
-
 
 <!-- ============================================================ -->
-<!-- TEASER IMAGE / VIDEO -->
+<!-- TEASER VIDEO -->
 <!-- ============================================================ -->
 
-::: {.section-container}
+::: {.block .teaser}
 
-::: {.hero-teaser}
+```{=html}
+<div class="gate-frame">
+  <video src="static/videos/teaser.mp4" poster="static/images/poster_mpcc.jpg" autoplay loop muted playsinline preload="auto" aria-label="Simulated Crazyflie flying through orange gates while the MPC prediction is drawn ahead of it"></video>
+</div>
+```
 
-<!-- Option A: Use a static image as the teaser -->
-<!--
-![Teaser figure showing your method overview or key result.](static/images/placeholder-teaser.svg){.teaser-img}
--->
-![Three of us come from ZJUI Meta Robotics team.](static/images/teaser.jpg){.teaser-img}
-
-<!-- Option B: Embed a video teaser (uncomment below, comment out image above)
-{{< video static/videos/teaser.mp4 >}}
--->
-
+::: {.caption}
+**Crazy Drone** flies a 43 g Crazyflie through gate courses at up to 2.8 m/s. The light-blue curve is the reference path; the orange dots are the 1 s trajectory the contouring MPC plans and re-solves every 10 ms.
 :::
 
 :::
-
 
 <!-- ============================================================ -->
 <!-- ABSTRACT -->
 <!-- ============================================================ -->
 
-::: {.section-container}
+::: {.block .prose}
 
-## Abstract {.section-title}
+## Abstract
 
-::: {.abstract-text}
-We develop controllers that fly a **Crazyflie 2.1** quadrotor through
-gate-based race tracks autonomously, both in the *crazyflow* MuJoCo simulator
-and on real hardware in a motion-capture arena. To score, the drone has to
-finish five laps without a collision. Hidden evaluation tracks make this harder
-with randomized start poses, tight 180° hairpins, stationary obstacles, steady
-wind and gusts, collision impulses, battery sag and motor imbalance.
+We race a **Crazyflie 2.1** quadrotor through gate courses in the *crazyflow* MuJoCo simulator. The drone may only send collective-thrust and attitude commands at 100 Hz. It sees the true pose of a gate only when it is within 0.7 m of it, and it has to finish five laps without touching anything, under action noise, mass randomization, shifted gates, wind, gusts and battery sag.
 
-Our approach separates **planning** from **control**. Before takeoff, a
-geometric planner turns the gate layout into a time-parameterized
-**cubic-spline trajectory**. It places waypoints before, at and after each gate
-so the drone crosses every gate head-on, and it adds detour waypoints whenever
-the next gate lies behind the drone. Segments that exceed an acceleration
-budget are retimed, so the drone slows down only in tight turns. An iterative
-repair step then pushes the path clear of any gate frame or stand it still
-touches. A **cascaded attitude controller** tracks this reference: a PID
-position loop with acceleration feedforward computes a desired thrust vector,
-which is mapped through the drone's identified thrust and attitude model into
-collective-thrust and roll/pitch commands, with limits on tilt and thrust.
+Our first controller adapts **Model Predictive Contouring Control** (MPCC) [1] to this interface. Instead of tracking a timed reference, the optimizer chooses its own progress along an arc-length path and trades speed against a gate-aware contouring error. It uses the system-identified closed-loop attitude model of the drone, a soft safe corridor around gate frames and obstacles, a disturbance observer, and replanning whenever a gate is revealed. Solved with acados [2] in about 1.3 ms per step, it finishes **90 of 90** simulated races on the three provided tracks.
 
-Next, we will add a learning-based controller, stress-test both controllers
-against every disturbance in simulation, and transfer the better one to the
-Crazyflie for the final race.
+Our second controller **distills the MPCC optimizer into small neural networks**. The planner is kept unchanged; only the solver is replaced. The networks are trained only on randomly generated tracks, first with behaviour cloning and then with DAgger, with the MPCC as expert and safety pilot. Along the way we found and fixed a margin bug in the expert itself. An ensemble of five 64×64 networks (67k parameters) finishes **88 of 90** races on the provided tracks, which it never saw in training, within 0.3 s of MPCC's lap times, at 0.7 ms per control step and with no optimizer on board.
+
+:::
+
+::: {.block}
+
+::: {.stats}
+
+::: {.stat}
+[90/90]{.num}
+[MPCC races finished on the 3 tracks × 3 conditions]{.label}
+:::
+
+::: {.stat}
+[88/90]{.num}
+[Distilled network ensemble, on tracks never seen in training]{.label}
+:::
+
+::: {.stat}
+[17.0 s]{.num}
+[Mean time for 5 laps of the U-turn track (MPCC, nominal)]{.label}
+:::
+
+::: {.stat}
+[0.7 ms]{.num}
+[Network control step, vs. 3.5 ms for MPCC (median, incl. features)]{.label}
 :::
 
 :::
 
+:::
 
 <!-- ============================================================ -->
-<!-- OVERVIEW / METHOD VIDEO -->
+<!-- SIMULATION VIDEOS -->
 <!-- ============================================================ -->
 
-<!--
-::: {.section-container}
+::: {#videos .block .shaded}
 
-## Video {.section-title}
+## Simulation videos
 
-::: {.video-container}
--->
-<!-- Replace with your YouTube or local video embed -->
-<!--
-{{< video https://www.youtube.com/embed/cSQTZoZPJzs >}}
-:::
-
-:::
--->
-
-
-::: {.section-container}
-
-## Plan and Preliminary Work {.section-title}
-
-::: {.columns}
-
-::: {.column .content-text width="42%"}
-
-- **Available:** simulator, observations and three tracks.
-- **Implemented:** spline planning, position PID and feedforward.
-- **Planned:** learning-based control (method TBD).
-- **Initial simulations:** five laps on all three tracks, one run each.
-
-:::
-
-::: {.column width="58%"}
-
-![Control architecture: the spline + PID controller is implemented; the learning-based controller is planned.](static/images/plan-diagram.jpg)
-
-:::
+```{=html}
+<div class="video-pair">
+  <div class="video-item">
+    <h3>Model Predictive Contouring Control</h3>
+    <button class="yt" type="button" data-id="E5Mg6_XzqIM" aria-label="Play the MPCC simulation video">
+      <img src="static/images/poster_mpcc.jpg" alt="MuJoCo view of the drone flying through orange gates with its MPC prediction drawn as dots" loading="lazy">
+      <span class="play" aria-hidden="true"></span>
+      <span class="badge">MPCC, 0:36</span>
+    </button>
+    <p class="video-links">
+      <a href="https://youtu.be/E5Mg6_XzqIM" target="_blank" rel="noopener"><i class="fa-brands fa-youtube" aria-hidden="true"></i> YouTube</a>
+      <a href="https://b23.tv/2BIfKiX" target="_blank" rel="noopener"><i class="fa-brands fa-bilibili" aria-hidden="true"></i> Bilibili</a>
+    </p>
+    <p>acados SQP-RTI at 100 Hz; the orange dots are the 25-stage, 1 s prediction.</p>
+  </div>
+  <div class="video-item">
+    <h3>Learning-Based Tracker (Distilled MPCC)</h3>
+    <button class="yt" type="button" data-id="CASnObq0pI8" aria-label="Play the learning-based controller simulation video">
+      <img src="static/images/poster_nn_tracker.jpg" alt="MuJoCo view of the drone flying through orange gates with the path ahead drawn in green" loading="lazy">
+      <span class="play" aria-hidden="true"></span>
+      <span class="badge">NN tracker, 0:35</span>
+    </button>
+    <p class="video-links">
+      <a href="https://youtu.be/CASnObq0pI8" target="_blank" rel="noopener"><i class="fa-brands fa-youtube" aria-hidden="true"></i> YouTube</a>
+      <a href="https://b23.tv/INTonYQ" target="_blank" rel="noopener"><i class="fa-brands fa-bilibili" aria-hidden="true"></i> Bilibili</a>
+    </p>
+    <p>Five 64×64 MLPs, averaged; the green curve is the 2.8 m of path the networks see.</p>
+  </div>
+</div>
+```
 
 :::
-
-:::
-
 
 <!-- ============================================================ -->
-<!-- RESULTS GALLERY -->
+<!-- THE TASK -->
 <!-- ============================================================ -->
 
-<!--
-::: {.section-container}
+::: {.block .prose}
 
-## Results {.section-title}
+## The task
 
-::: {.content-text}
-Provide a brief description of the results shown below. Explain what the
-reader should observe and why it matters.
+Each track is a sequence of square gates (0.72 m frame, 0.40 m opening, at 0.7 m or 1.2 m height) plus thin vertical obstacle poles. Gates must be crossed in order and along their local $+x$ axis, five laps in a row. Touching a gate, a pole or the floor, or leaving the flight volume, ends the race. The provided tracks are a **circle** (4 gates), a **U-turn** with 180° hairpins (4 gates) and a figure-eight **lemniscate** (6 gates).
+
+- **Interface.** At 100 Hz the controller receives position, attitude, velocity and body rates, and returns $[\phi_c, \vartheta_c, \psi_c, f_c]$: roll, pitch and yaw angles and the collective thrust. The Crazyflie's onboard attitude loop does the rest. Physics runs at 500 Hz.
+- **Partial observability.** Gate and obstacle poses are reported at their *nominal* values until the drone comes within 0.7 m. The hardware environment masks motion-capture poses in exactly the same way.
+- **Disturbances.** Every run has action noise, random force noise of ±0.1 N, ±5 g mass and inertia randomization and a random start pose. We also test with *shifted* gates (up to ±0.15 m, ±0.15 rad, revealed late) and with *wind*: 1.1 m/s steady, 0.8 m/s gusts and 10 % battery sag.
+
+:::
+
+<!-- ============================================================ -->
+<!-- METHOD I: MPCC -->
+<!-- ============================================================ -->
+
+::: {.block}
+
+## Method I: Model Predictive Contouring Control
+
+::: {.pipeline aria-label="MPCC pipeline: gates to route, cubic spline, arc-length path with weights, MPCC solver, attitude and thrust command"}
+
+::: {.step}
+**Route** pre / center / post points per gate, detours
+:::
+
+::: {.step}
+**Cubic spline** $C^2$ path through the route
+:::
+
+::: {.step}
+**Arc-length path** $\mathbf{p}_d(\theta)$, weight $q_c(\theta)$, corridor $r(\theta)$
+:::
+
+::: {.step .is-solver}
+**MPCC (acados)** SQP-RTI, $N=25$, 1 s horizon
+:::
+
+::: {.step}
+**Command** $[\phi_c, \vartheta_c, 0, f_c]$ at 100 Hz
+:::
+
+:::
+
+::: {.caption .center}
+The path is replanned whenever the true pose of a gate or obstacle is revealed.
+:::
+
+::: {.prose}
+
+### Contouring instead of tracking
+
+A classical pipeline fixes a timed reference $\mathbf{p}_{\mathrm{ref}}(t)$ and tracks it. If the drone falls behind, it chases a reference point that may no longer be reachable. MPCC drops the time. The reference is a purely geometric path $\mathbf{p}_d(\theta)$, parameterized by arc length, and the progress $\theta$ becomes a state of the optimizer, with $\dot\theta = v_\theta$. The tracking error $\mathbf{e} = \mathbf{p} - \mathbf{p}_d(\theta)$ is split along the unit tangent $\mathbf{t}(\theta)$ into a *lag* part and a *contour* part:
+
+$$
+\mathbf{e}^l = (\mathbf{t}^\top \mathbf{e})\,\mathbf{t}, \qquad \mathbf{e}^c = \mathbf{e} - \mathbf{e}^l .
+$$
+
+Every 10 ms we solve, over a 1 s horizon of 25 stages, subject to dynamics, input and corridor constraints,
+
+$$
+\min_{\mathbf{u}_{0:N-1}} \; \sum_{k=0}^{N} \Big( q_l \|\mathbf{e}^l_k\|^2 + q_c(\theta_k)\,\|\mathbf{e}^c_k\|^2 + \|\mathbf{u}_k\|^2_{R} - \mu\, v_{\theta,k} \Big).
+$$
+
+The progress reward $\mu v_\theta$ pushes the drone forward. The contour weight keeps it on the racing line. Because the speed profile is the result of the optimization, the drone slows down for tight turns and gates and speeds up on straights, and it may cut corners between gates.
+
+### Adapting the paper to a 43 g Crazyflie
+
+Romero et al. [1] control a 0.85 kg racing quadrotor through its four rotor thrusts. We can only command attitude and collective thrust, so we use the model the simulator integrates, which is a **system-identified model of the closed loop** "Crazyflie + onboard attitude controller":
+
+$$
+\begin{aligned}
+\dot{\mathbf{v}} &= \tfrac{1}{m} R(\boldsymbol\eta)\begin{bmatrix}0\\0\\c_f f\end{bmatrix} + \mathbf{g} + \tfrac{1}{m} R D R^\top \mathbf{v} + \hat{\mathbf{d}}, \\
+\ddot{\boldsymbol\eta} &= \mathbf{a}_\eta \odot \boldsymbol\eta + \mathbf{b}_\eta \odot \dot{\boldsymbol\eta} + \mathbf{c}_\eta \odot \boldsymbol\eta_c, \\
+\dot f &= \tfrac{1}{\tau_f}(f_c - f).
+\end{aligned}
+$$
+
+Each Euler angle responds like a damped spring to its command (roll/pitch: 13.7 rad/s, damping 0.46, steady-state gain 0.73), and the thrust lags its command by 80 ms. As in the paper, the optimizer chooses the *rates* of the commands, which keeps them smooth and bounded. The state has 18 dimensions: position, angles, velocity, angle rates, thrust, the three commands, $\theta$ and $v_\theta$.
+
+### What we added for safety
+
+- **Gate-aware contour weight.** A sum of Gaussians centred on the gates $\mathbf{g}_j$,
+  $$
+  q_c(\theta) = q_{\mathrm{nom}} + q_{\mathrm{gate}} \textstyle\sum_j \exp\!\big(-\|\mathbf{p}_d(\theta) - \mathbf{g}_j\|^2 / 2\sigma^2\big),
+  $$
+  is small between gates and large inside them. The drone may cut corners, but it threads the gates precisely.
+- **Soft safe corridor.** At every stage the contour error must stay below the clearance to the nearest frame, pole or obstacle minus the drone's radius, and obstacles get soft keep-out cylinders.
+- **Caution near unrevealed gates.** Progress speed is capped at 1.5 m/s within 1 m of a gate whose true pose is not known yet. When the pose is revealed, the path is replanned.
+- **Disturbance observer.** An estimate $\hat{\mathbf{d}}$ of the unmodelled acceleration (wind, mass error, battery sag) enters the model. When it is large, the controller slows down.
+
+:::
+
+::: {.figure-pair}
+
+::: {.fig .is-render}
+![Reference path (light blue) and the 1 s MPC prediction (orange) in the simulator.](static/images/mpc_render.png){fig-alt="3D view: the drone between two gates with a light-blue reference path and an orange dotted MPC prediction"}
+:::
+
+::: {.fig .is-paper}
+![Top view at two instants. The prediction (orange) cuts the corner between gates and rejoins the path inside them.](static/images/predictions.png){fig-alt="Two top-view snapshots of the path ahead and the MPC prediction, which leaves the path between gates and rejoins it inside the gates"}
+:::
+
+:::
+
+:::
+
+<!-- ============================================================ -->
+<!-- METHOD II: DISTILLATION -->
+<!-- ============================================================ -->
+
+::: {.block .shaded}
+
+## Method II: Distilling MPCC into a neural tracker
+
+::: {.pipeline aria-label="Distilled controller pipeline: same planner as MPCC, 140 features in the heading frame, ensemble of MLPs that outputs command changes, integrate and clip"}
+
+::: {.step}
+**Same planner** route, spline, $q_c$, corridor, replanning
+:::
+
+::: {.step}
+**140 features** path ahead, weights, state, last command, $\hat{\mathbf{d}}$
+:::
+
+::: {.step .is-learned}
+**MLP ensemble** 5 × (140-64-64-3), outputs averaged
+:::
+
+::: {.step}
+**Integrate & clip** $\Delta[\phi_c, \vartheta_c, f_c]$ within MPCC's limits
+:::
+
+:::
+
+::: {.caption .center}
+Only the outlined orange block is learned. Everything else is shared with the MPCC controller.
+:::
+
+::: {.prose}
+
+### Distill only the optimizer
+
+The planning half of MPCC is cheap and has nothing to learn, so we keep it exactly and let a network replace only the nonlinear program. The network is a **path tracker**. It sees 20 samples of the path ahead, 0.14 m apart (2.8 m, as far as MPCC's horizon reaches at top speed), the contour weight, corridor radius and speed cap at those samples, the drone state, the previous command, the disturbance estimate and the two nearest obstacles. All of these are expressed in a heading frame centred on the drone, so the network cannot memorize where on the map it is. It outputs the *change* of the roll, pitch and thrust commands, which is MPCC's first optimal input. That makes its commands as smooth and bounded as MPCC's by construction.
+
+### Random tracks, DAgger, and an expert-in-the-loop safety pilot
+
+To show that the tracker works for *any* path, we train only on **procedurally generated tracks** (3–6 gates, random headings and heights, 0–3 obstacles placed near the path, nominal / shifted / shifted + wind conditions). The three provided tracks are held out for testing. Behaviour cloning alone reaches only 32 % success on held-out random tracks, because small errors compound into states the expert never visited [6]. With **DAgger** [3], the student flies and MPCC labels every visited state in shadow mode. If the student leaves the corridor by more than 2 cm, MPCC takes over for 1 s, still labelling, which yields exactly the recovery data the student needs. A fifth of the episodes are MPCC flights with correlated command noise (DART [4]). Success rises to about 79 % after four iterations.
+
+::: {.note}
+**Fixing the teacher.** A student cannot beat its teacher, so we stress-tested MPCC itself on 60 random tracks. Every failure was a gate-frame hit. The drone's collision box has a 0.099 m half-diagonal, but the corridor reserved only $r_{\mathrm{drone}} = 0.10$ m, which left 1 mm of margin inside a gate. With 0.13 m the expert's success on random tracks rose from 53/60 to 59/60 (nominal), with unchanged lap times on the provided tracks.
+:::
+
+### Ensembles, not RL, closed the gap
+
+PPO fine-tuning [5] with a shaped reward and MPCC as a safety monitor did not improve the policy within our budget (two runs, about 1M steps each). The remaining failures are rare near-misses at gate frames, and their signal was drowned in noise. What worked was averaging **five independently trained networks**. Their imitation errors are partly independent and cancel in closed loop, exactly where single networks fail: a few centimetres inside a gate.
+
+:::
+
+:::
+
+<!-- ============================================================ -->
+<!-- STRESS TESTING & RESULTS -->
+<!-- ============================================================ -->
+
+::: {.block}
+
+## Stress testing and results
+
+::: {.figure-wide}
+
+::: {.only-light}
+![](static/images/topview-light.svg){fig-alt="Top views of five-lap flights on the circle, U-turn and lemniscate tracks; the MPCC and network trajectories nearly coincide"}
+:::
+
+::: {.only-dark}
+![](static/images/topview-dark.svg){fig-alt="Top views of five-lap flights on the circle, U-turn and lemniscate tracks; the MPCC and network trajectories nearly coincide"}
+:::
+
+::: {.caption}
+Five laps on each provided track (top view, same seed, default disturbances). [Blue]{.key-mpcc}: MPCC. [Orange]{.key-nn}: the distilled ensemble, which has never seen these tracks. Gate frames are drawn with the crossing direction as an arrow; × marks an obstacle. The two controllers fly almost the same racing line and their 5-lap times differ by at most 0.32 s.
+:::
+
+:::
+
+### MPCC on the provided tracks
+
+Every track is flown under three conditions: nominal, shifted gates that are revealed late, and wind with gusts and battery sag.
+
+::: {.table-wrap}
+
+| Track | Condition | Success | 5-lap time [s] | Best [s] | Max gate offset [m] | Solve, mean / max [ms] |
+|:--|:--|--:|--:|--:|--:|--:|
+| Circle | nominal | 10/10 | 25.10 ± 0.31 | 24.70 | 0.109 | 1.29 / 6.65 |
+| Circle | shifted gates | 10/10 | 24.86 ± 0.76 | 23.91 | 0.100 | 1.26 / 6.34 |
+| Circle | wind + battery | 10/10 | 27.03 ± 0.59 | 26.44 | 0.120 | 1.23 / 6.71 |
+| U-turn | nominal | 10/10 | 17.01 ± 0.18 | 16.82 | 0.079 | 1.31 / 3.32 |
+| U-turn | shifted gates | 10/10 | 17.23 ± 0.39 | 16.67 | 0.105 | 1.24 / 5.74 |
+| U-turn | wind + battery | 10/10 | 18.53 ± 0.57 | 17.96 | 0.098 | 1.20 / 5.83 |
+| Lemniscate | nominal | 10/10 | 25.83 ± 0.44 | 25.36 | 0.108 | 1.25 / 3.72 |
+| Lemniscate | shifted gates | 10/10 | 26.14 ± 0.64 | 25.14 | 0.119 | 1.23 / 4.89 |
+| Lemniscate | wind + battery | 10/10 | 28.43 ± 1.08 | 27.49 | 0.115 | 1.19 / 4.67 |
+
+::: {.table-note}
+10 seeds per row, 5 laps each, no solver failures. Gate offset: largest distance from the gate centre right after a gate is passed (the opening's half-width is 0.2 m). Worst-case solve times were measured with nine simulations in parallel; all are far below the 10 ms budget.
+:::
+
+:::
+
+### Learned controllers vs. the expert
+
+::: {.table-wrap}
+
+| Controller | Parameters | Provided tracks | Random test tracks (nominal / shifted / +wind) | Step time |
+|:--|--:|--:|--:|--:|
+| []{.swatch .mpcc}MPCC (expert) | — | 90/90 | 124/144 (47 / 39 / 38) | 3.5 ms |
+| []{.swatch .nn}**Ensemble 5 × 64×64 (ours)** | **67k** | **88/90** | **117/144 (47 / 36 / 34)** | **0.7 ms** |
+| Single 128×128, distilled from the ensemble | 35k | 85/90 | 111/144 (46 / 35 / 30) | 0.6 ms |
+| Single 64×64, DAgger | 13k | 74/90 | 101/144 (44 / 32 / 25) | 0.6 ms |
+| Single 64×64, behaviour cloning only | 13k | — | 32 % (validation) | 0.6 ms |
+
+::: {.table-note}
+Provided tracks: 3 tracks × 3 conditions × 10 seeds, 5 laps. Random tracks: 48 held-out tracks × 3 conditions, 3 laps, on seeds never used for any design decision. Step time is the median of the whole control step; the networks themselves take about 30 μs.
+:::
+
+:::
+
+::: {.prose}
+
+- **Same speed as the expert.** On the nominal provided tracks the ensemble's 5-lap times are within 0.3 s of MPCC (circle 25.09 vs 25.21 s, U-turn 17.39 vs 17.08 s, lemniscate 26.36 vs 26.09 s), and up to 1 s slower in wind.
+- **Generalization.** The networks never saw the provided tracks, yet they finish 98 % of the races there and reach 94 % of MPCC's success on held-out random tracks.
+- **Shared weak spot.** The remaining failures of both controllers are mostly gates that are shifted and revealed late, where the mid-flight replan bends the path at speed.
+
+:::
+
+:::
+
+<!-- ============================================================ -->
+<!-- BASELINE: SPLINE + CASCADED PID (midterm controller) -->
+<!-- ============================================================ -->
+
+::: {.block .shaded}
+
+## Baseline: spline + cascaded PID
+
+::: {.prose}
+
+Our first controller, presented at the midterm, separates **planning** from **control**. Before takeoff, a geometric planner turns the gate layout into a time-parameterized **cubic-spline trajectory**. It places waypoints before, at and after each gate so the drone crosses every gate head-on, and it adds detour waypoints whenever the next gate lies behind the drone. Segments that exceed an acceleration budget are retimed, so the drone slows down only in tight turns. An iterative repair step then pushes the path clear of any gate frame or stand it still touches. A **cascaded attitude controller** tracks this reference: a PID position loop with acceleration feedforward computes a desired thrust vector, which is mapped through the drone's identified thrust and attitude model into collective-thrust and roll/pitch commands, with limits on tilt and thrust.
+
+In the *crazyflow* simulator the drone finished all five laps on every track and passed every gate (20, 20 and 30 gates), reaching speeds close to 2 m/s. Mean tracking error stayed between 0.052 m and 0.058 m, and the maximum error was 0.133 m. These numbers come from one run per track with seed 0. Because it follows a fixed, timed reference, this controller is the starting point that MPCC improves on.
+
 :::
 
 ::: {.results-grid}
 
-::: {.result-card}
-![Result 1 caption](static/images/placeholder-result1.svg)
-:::
-
-::: {.result-card}
-![Result 2 caption](static/images/placeholder-result2.svg)
-:::
-
-::: {.result-card}
-![Result 3 caption](static/images/placeholder-result3.svg)
-:::
-
-:::
-
-:::
--->
-
-
-::: {.section-container}
-
-## Preliminary Results {.section-title}
-
-::: {.content-text}
-We evaluated the spline planner and the cascaded attitude controller in the
-*crazyflow* simulator on three tracks: **circle**, **U-turn** and
-**figure-eight**. In each plot, the dashed gray line is the planned reference,
-the colored line is the flown trajectory shaded by speed, orange bars are
-gates with red arrows showing the crossing direction, and × marks an obstacle.
-
-The drone finished all five laps on every track and passed every gate
-(20, 20 and 30 gates), reaching speeds close to 2 m/s. Mean tracking error
-stayed between 0.052 m and 0.058 m, and the maximum error was 0.133 m.
-
-These numbers come from one run per track with seed 0. Repeated evaluation
-under randomized disturbances is still pending.
-:::
-
-::: {.results-grid}
-
-::: {.result-card}
+::: {.fig}
 ![Circle track: 5 laps in 35.44 s, mean tracking error 0.052 m.](static/images/simulation1.jpg)
 :::
 
-::: {.result-card}
+::: {.fig}
 ![U-turn track: 5 laps in 27.00 s, mean tracking error 0.058 m.](static/images/simulation2.jpg)
 :::
 
-::: {.result-card}
+::: {.fig}
 ![Figure-eight track: 5 laps in 40.88 s, mean tracking error 0.057 m.](static/images/simulation3.jpg)
 :::
 
 :::
 
-:::
-
-::: {.section-container}
-
-## Evaluation Plan {.section-title}
-
-::: {.content-text}
-
-### 1. Metrics
-
-- **Completion rate**
-- **Collisions**
-- **Lap time**
-- **Control latency**
-
-### 2. Test Protocol
-
-- Compare **classical vs. learning-based control**.
-- Run repeated trials with **matched seeds** for both controllers.
-
-### 3. Generalization
-
-- Evaluate on all **three tracks** first.
-- Then run **noise** and **dynamics stress tests**.
-
+::: {.caption}
+Dashed gray: planned reference. Colored line: flown trajectory, shaded by speed. Orange bars: gates, with red arrows for the crossing direction. ×: obstacle.
 :::
 
 :::
-
-::: {.section-container}
-
-## Risks {.section-title}
-
-::: {.content-text}
-
-- **Fixed planned path:** the spline reference does not adapt during flight.
-- **Unseen conditions:** performance may drop outside the tested settings.
-- **Learning stability:** training of the learning-based controller may be unstable.
-
-:::
-
-:::
-
-::: {.section-container}
-
-## Team Roles {.section-title}
-
-::: {.content-text}
-
-- **Hanbin:** classical control / planning
-- **Xiang:** learning / training
-- **Shengrui:** evaluation
-- **Siyuan:** simulation integration / presentation
-
-:::
-
-:::
-
 
 <!-- ============================================================ -->
-<!-- QUALITATIVE COMPARISONS -->
+<!-- STATE-BASED CONTROLLER (in progress) -->
 <!-- ============================================================ -->
 
-<!--
-::: {.section-container}
+::: {.block}
 
-## Qualitative Comparisons {.section-title}
+## State-based controller
 
-::: {.content-text}
-Describe the comparison setup — which baselines are you comparing against, and
-what should the reader look for in the side-by-side results.
-:::
+::: {.in-progress}
 
-::: {.comparison-grid}
+[In progress]{.status}
 
-::: {.comparison-item}
-![Ours](static/images/placeholder-ours.svg)
-
-**Ours**
-:::
-
-::: {.comparison-item}
-![Baseline A](static/images/placeholder-baseline.svg)
-
-**Baseline A**
-:::
+All controllers above use the attitude interface. The environment also offers a state interface, in which the controller sends a 13-value full-state setpoint and the Crazyflie's onboard controller tracks it. Our state-based racing controller and its stress tests in simulation will be added here.
 
 :::
 
 :::
--->
-
 
 <!-- ============================================================ -->
-<!-- INTERACTIVE SLIDER (Optional) -->
+<!-- HARDWARE (in progress) -->
 <!-- ============================================================ -->
 
-<!--
-::: {.section-container}
+::: {.block}
 
-## Interpolation Demo {.section-title}
+## Hardware
 
-::: {.content-text}
-If your method supports interpolation or continuous control, you can add an
-interactive slider here. The example below shows how to set one up.
-:::
+::: {.in-progress}
 
-::: {.interpolation-panel}
+[In progress]{.status}
 
-::: {.interpolation-endpoints}
-![Start](static/images/placeholder-start.svg){.endpoint-img}
+Flight recordings (stable hover and a simple track) will be added here. The software we fly the real Crazyflie with is ready:
 
-![End](static/images/placeholder-end.svg){.endpoint-img}
-:::
-
-<input type="range" min="0" max="100" value="50" class="interpolation-slider" id="interpolation-slider">
-<div id="interpolation-value" class="interpolation-value">50%</div>
-
-<script>
-  const slider = document.getElementById('interpolation-slider');
-  const display = document.getElementById('interpolation-value');
-  slider.addEventListener('input', function() {
-    display.textContent = this.value + '%';
-  });
-</script>
+- **Kill switch.** Pressing SPACE cuts the motors at any time.
+- **Stale-pose watchdog.** Cuts the motors if no motion-capture pose of the drone arrives for more than 100 ms. It watches the raw motion-capture messages, because the estimator keeps predicting poses after the drone is lost.
+- **Keyboard test flights.** A state-mode controller takes off to 0.5 m and holds position; each key press moves the target by 0.1 m, at most 0.3 m/s, inside the track's safety limits. We use it to test the radio, motion capture, estimator and safety features at low height before flying a racing controller.
+- **Radio link check.** Counts acknowledged packets and reads battery voltage and supervisor state, without ever arming the drone.
+- **Startup procedure.** Written instructions for motion capture, estimator and deployment in our lab setup.
 
 :::
 
 :::
--->
-
 
 <!-- ============================================================ -->
-<!-- RELATED WORK -->
+<!-- LIMITATIONS -->
 <!-- ============================================================ -->
 
-<!--
-::: {.section-container}
+::: {.block .prose}
 
-## Related Work {.section-title}
+## Limitations and next steps
 
-::: {.content-text}
-
-Here are some related works in this area:
-
-- [Related Paper 1](https://example.com) introduces an idea similar to ours for [topic].
-- [Related Paper 2](https://example.com) also addresses [problem] using [approach].
-- [Related Paper 3](https://example.com) proposes [technique] which is complementary to our method.
-
-Check out [this survey](https://example.com) for a comprehensive overview of the field.
-:::
-
-:::
--->
-
-
-::: {.section-container}
-
-## References {.section-title}
-
-::: {.content-text}
-
-- [ECE 484 Fall 2026 Quadrotor Project](https://safeautonomy-illinois.github.io/ece484-site/fall-2026/projects/quadrotor/)
-:::
+- **Sim-to-real.** Radio and estimator delay are not modelled. Forward-predicting the initial state over the known delay before solving (or before querying the network) is the standard remedy, and delay and estimator noise should be added as randomizations before training.
+- **Replanning latency.** The spline planner runs inside the control step, so a gate reveal can cost 0.1–0.3 s once. On hardware it belongs in a background thread, with the drone flying the old path until the new one is ready.
+- **Supervision.** The ensemble still crashes in 2 of 90 races. A supervisor that hands control back to MPCC when the drone leaves the corridor, the same rule we used to collect data, would combine the network's speed with MPCC's recovery.
+- **RL.** Fine-tuning with PPO needs a far larger sample budget, such as GPU-vectorized simulation, or a lower-variance signal at the gates.
 
 :::
 
+<!-- ============================================================ -->
+<!-- TEAM ROLES -->
+<!-- ============================================================ -->
+
+::: {.block .prose}
+
+## Team roles
+
+::: {.roles}
+
+[Hanbin]{.role-name} [Classical control / planning]{.role-what}
+
+[Xiang]{.role-name} [Learning / training]{.role-what}
+
+[Shengrui]{.role-name} [Evaluation]{.role-what}
+
+[Siyuan]{.role-name} [Simulation integration / presentation]{.role-what}
+
+:::
+
+:::
 
 <!-- ============================================================ -->
 <!-- BIBTEX -->
 <!-- ============================================================ -->
 
-<!--
-::: {.section-container}
+::: {.block .shaded .prose}
 
-## BibTeX {.section-title}
+## BibTeX
 
 ```bibtex
-@article{yourname2026project,
-  author    = {Author One and Author Two and Author Three},
-  title     = {Your Project Title Here},
-  journal   = {Conference or Journal Name},
-  year      = {2026},
+@misc{zheng2026crazydrone,
+  title  = {Crazy Drone: Contouring MPC and a Distilled Neural Tracker for Crazyflie Racing},
+  author = {Zheng, Hanbin and Wang, Shengrui and Wang, Siyuan and Li, Xiang},
+  note   = {ECE 484 Final Project, University of Illinois Urbana-Champaign},
+  year   = {2026},
+  url    = {https://safeautonomy-illinois-students.github.io/fa26_ece484_final_project_site_team_ZJUI_Meta/}
 }
 ```
 
 :::
--->
 
+<!-- ============================================================ -->
+<!-- REFERENCES -->
+<!-- ============================================================ -->
+
+::: {.block .prose}
+
+## References
+
+::: {.refs}
+
+1. A. Romero, S. Sun, P. Foehn, D. Scaramuzza. [Model Predictive Contouring Control for Time-Optimal Quadrotor Flight](https://arxiv.org/abs/2108.13205). *IEEE Transactions on Robotics*, 2022.
+2. R. Verschueren et al. [acados: a modular open-source framework for fast embedded optimal control](https://docs.acados.org/). *Mathematical Programming Computation*, 2022.
+3. S. Ross, G. Gordon, D. Bagnell. [A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning](https://arxiv.org/abs/1011.0686). *AISTATS*, 2011.
+4. M. Laskey, J. Lee, R. Fox, A. Dragan, K. Goldberg. [DART: Noise Injection for Robust Imitation Learning](https://arxiv.org/abs/1703.09327). *CoRL*, 2017.
+5. J. Schulman, F. Wolski, P. Dhariwal, A. Radford, O. Klimov. [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347). arXiv:1707.06347, 2017.
+6. S. Levine. [CS 285: Deep Reinforcement Learning](https://rail.eecs.berkeley.edu/deeprlcourse/). Lecture course, University of California, Berkeley. Lecture 2 (behaviour cloning, distribution shift, DAgger).
+7. [ECE 484 Fall 2026 Quadrotor Project](https://safeautonomy-illinois.github.io/ece484-site/fall-2026/projects/quadrotor/), University of Illinois Urbana-Champaign.
+
+:::
+
+:::
 
 <!-- ============================================================ -->
 <!-- FOOTER -->
@@ -421,3 +558,29 @@ This website template is adapted from the
 [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
 
 :::
+
+```{=html}
+<script>
+  // Respect reduced motion: keep the teaser paused on its poster, with controls to play it.
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll(".gate-frame video").forEach(function (v) {
+      v.removeAttribute("autoplay");
+      v.pause();
+      v.controls = true;
+    });
+  }
+
+  // Click-to-play YouTube embeds: show a local poster first, load the player only on click.
+  document.querySelectorAll(".yt").forEach(function (box) {
+    box.addEventListener("click", function () {
+      var iframe = document.createElement("iframe");
+      iframe.src = "https://www.youtube-nocookie.com/embed/" + box.dataset.id + "?autoplay=1&rel=0";
+      iframe.title = box.getAttribute("aria-label") || "YouTube video";
+      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      iframe.allowFullscreen = true;
+      box.replaceChildren(iframe);
+      box.classList.add("is-playing");
+    }, { once: true });
+  });
+</script>
+```
