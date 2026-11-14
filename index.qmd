@@ -7,80 +7,84 @@ format:
     page-layout: full
 ---
 
-<!-- ============================================================ -->
-<!-- HERO -->
-<!-- ============================================================ -->
+::: {.hero-section}
 
-::: {.hero}
-
-::: {.venue}
-ECE 484 Principles of Safe Autonomy, UIUC, Fall 2026. Team ZJUI Meta
-:::
-
-# Crazy Drone {.title}
+# Crazy Drone: Contouring MPC and a Distilled Neural Tracker for Crazyflie Racing {.title}
 
 ::: {.subtitle}
-Contouring MPC and a Distilled Neural Tracker for Crazyflie Racing
+ECE 484 Principles of Safe Autonomy, UIUC, Fall 2026 · Team ZJUI Meta
 :::
 
 ::: {.author-list}
-[[Hanbin Zheng](https://hanbinzheng.github.io/)^1,2^]{.author}
-[[Shengrui Wang](https://github.com/LunateELf)^1,2^]{.author}
-[[Siyuan Wang](https://github.com/mikkke117)^1,2^]{.author}
-[[Xiang Li](https://github.com/lx2005Jim)^1,2^]{.author}
+
+[**Hanbin Zheng**](https://hanbinzheng.github.io/)^1,2^,
+[**Shengrui Wang**](https://github.com/LunateELf)^1,2^,
+[**Siyuan Wang**](https://github.com/mikkke117)^1,2^,
+[**Xiang Li**](https://github.com/lx2005Jim)^1,2^
+
 :::
 
 ::: {.affiliation-list}
-^1^University of Illinois Urbana-Champaign ^2^Zhejiang University
+
+^1^University of Illinois Urbana-Champaign,  ^2^Zhejiang University
+
 :::
 
 ::: {.button-row}
-[{{< fa brands github >}} Code](https://github.com/safeautonomy-illinois-students/fa26_ece484_final_project_code_team_ZJUI_Meta){.btn-link}
-[{{< fa brands youtube >}} Videos](#videos){.btn-link}
-[{{< fa file-pdf >}} MPCC report](static/pdfs/mpcc_report.pdf){.btn-link}
-[{{< fa file-pdf >}} Distillation report](static/pdfs/distill_report.pdf){.btn-link}
-[{{< fa graduation-cap >}} Course project](https://safeautonomy-illinois.github.io/ece484-site/fall-2026/projects/quadrotor/){.btn-link}
-:::
+
+[[{{< fa brands github >}} Code]{.btn-text}](https://github.com/safeautonomy-illinois-students/fa26_ece484_final_project_code_team_ZJUI_Meta){.btn .btn-primary}
+[[{{< fa video >}} Videos]{.btn-text}](#video){.btn .btn-primary}
+[[{{< fa file-pdf >}} MPCC Report]{.btn-text}](static/pdfs/mpcc_report.pdf){.btn .btn-primary}
+[[{{< fa file-pdf >}} Distillation Report]{.btn-text}](static/pdfs/distill_report.pdf){.btn .btn-primary}
+[[{{< fa graduation-cap >}} Course Project]{.btn-text}](https://safeautonomy-illinois.github.io/ece484-site/fall-2026/projects/quadrotor/){.btn .btn-primary}
 
 :::
 
+:::
+
+
 <!-- ============================================================ -->
-<!-- TEASER VIDEO -->
+<!-- TEASER IMAGE / VIDEO -->
 <!-- ============================================================ -->
 
-::: {.block .teaser}
+::: {.section-container}
+
+::: {.hero-teaser}
 
 ```{=html}
-<div class="gate-frame">
-  <video src="static/videos/teaser.mp4" poster="static/images/poster_mpcc.jpg" autoplay loop muted playsinline preload="auto" aria-label="Simulated Crazyflie flying through orange gates while the MPC prediction is drawn ahead of it"></video>
-</div>
+<video src="static/videos/teaser.mp4" poster="static/images/poster_mpcc.jpg" autoplay loop muted playsinline preload="auto" aria-label="Simulated Crazyflie flying through orange gates while the MPC prediction is drawn ahead of it"></video>
 ```
 
-::: {.caption}
+::: {.teaser-caption}
 **Crazy Drone** flies a 43 g Crazyflie through gate courses at up to 2.8 m/s. The light-blue curve is the reference path; the orange dots are the 1 s trajectory the contouring MPC plans and re-solves every 10 ms.
 :::
 
 :::
 
+:::
+
+
 <!-- ============================================================ -->
 <!-- ABSTRACT -->
 <!-- ============================================================ -->
 
-::: {.block .prose}
+::: {.section-container}
 
-## Abstract
+## Abstract {.section-title}
 
+::: {.abstract-text}
 We race a **Crazyflie 2.1** quadrotor through gate courses in the *crazyflow* MuJoCo simulator. The drone may only send collective-thrust and attitude commands at 100 Hz. It sees the true pose of a gate only when it is within 0.7 m of it, and it has to finish five laps without touching anything, under action noise, mass randomization, shifted gates, wind, gusts and battery sag.
 
 Our first controller adapts **Model Predictive Contouring Control** (MPCC) [1] to this interface. Instead of tracking a timed reference, the optimizer chooses its own progress along an arc-length path and trades speed against a gate-aware contouring error. It uses the system-identified closed-loop attitude model of the drone, a soft safe corridor around gate frames and obstacles, a disturbance observer, and replanning whenever a gate is revealed. Solved with acados [2] in about 1.3 ms per step, it finishes **90 of 90** simulated races on the three provided tracks.
 
 Our second controller **distills the MPCC optimizer into small neural networks**. The planner is kept unchanged; only the solver is replaced. The networks are trained only on randomly generated tracks, first with behaviour cloning and then with DAgger, with the MPCC as expert and safety pilot. Along the way we found and fixed a margin bug in the expert itself. An ensemble of five 64×64 networks (67k parameters) finishes **88 of 90** races on the provided tracks, which it never saw in training, within 0.3 s of MPCC's lap times, at 0.7 ms per control step and with no optimizer on board.
+:::
 
 :::
 
-::: {.block}
+::: {.section-container}
 
-::: {.stats}
+::: {.stats-row}
 
 ::: {.stat}
 [90/90]{.num}
@@ -106,54 +110,55 @@ Our second controller **distills the MPCC optimizer into small neural networks**
 
 :::
 
+
 <!-- ============================================================ -->
-<!-- SIMULATION VIDEOS -->
+<!-- OVERVIEW / METHOD VIDEO -->
 <!-- ============================================================ -->
 
-::: {#videos .block .shaded}
+::: {#video .section-container}
 
-## Simulation videos
+## Video {.section-title}
 
-```{=html}
-<div class="video-pair">
-  <div class="video-item">
-    <h3>Model Predictive Contouring Control</h3>
-    <button class="yt" type="button" data-id="E5Mg6_XzqIM" aria-label="Play the MPCC simulation video">
-      <img src="static/images/poster_mpcc.jpg" alt="MuJoCo view of the drone flying through orange gates with its MPC prediction drawn as dots" loading="lazy">
-      <span class="play" aria-hidden="true"></span>
-      <span class="badge">MPCC, 0:36</span>
-    </button>
-    <p class="video-links">
-      <a href="https://youtu.be/E5Mg6_XzqIM" target="_blank" rel="noopener"><i class="fa-brands fa-youtube" aria-hidden="true"></i> YouTube</a>
-      <a href="https://b23.tv/2BIfKiX" target="_blank" rel="noopener"><i class="fa-brands fa-bilibili" aria-hidden="true"></i> Bilibili</a>
-    </p>
-    <p>acados SQP-RTI at 100 Hz; the orange dots are the 25-stage, 1 s prediction.</p>
-  </div>
-  <div class="video-item">
-    <h3>Learning-Based Tracker (Distilled MPCC)</h3>
-    <button class="yt" type="button" data-id="CASnObq0pI8" aria-label="Play the learning-based controller simulation video">
-      <img src="static/images/poster_nn_tracker.jpg" alt="MuJoCo view of the drone flying through orange gates with the path ahead drawn in green" loading="lazy">
-      <span class="play" aria-hidden="true"></span>
-      <span class="badge">NN tracker, 0:35</span>
-    </button>
-    <p class="video-links">
-      <a href="https://youtu.be/CASnObq0pI8" target="_blank" rel="noopener"><i class="fa-brands fa-youtube" aria-hidden="true"></i> YouTube</a>
-      <a href="https://b23.tv/INTonYQ" target="_blank" rel="noopener"><i class="fa-brands fa-bilibili" aria-hidden="true"></i> Bilibili</a>
-    </p>
-    <p>Five 64×64 MLPs, averaged; the green curve is the 2.8 m of path the networks see.</p>
-  </div>
-</div>
-```
+::: {.comparison-grid}
+
+::: {.comparison-item .video-item}
+
+### Model Predictive Contouring Control
+
+{{< video https://www.youtube.com/embed/E5Mg6_XzqIM >}}
+
+[[{{< fa brands youtube >}} YouTube](https://youtu.be/E5Mg6_XzqIM) [{{< fa brands bilibili >}} Bilibili](https://b23.tv/2BIfKiX)]{.video-links}
+
+acados SQP-RTI at 100 Hz; the orange dots are the 25-stage, 1 s prediction.
 
 :::
+
+::: {.comparison-item .video-item}
+
+### Learning-Based Tracker (Distilled MPCC)
+
+{{< video https://www.youtube.com/embed/CASnObq0pI8 >}}
+
+[[{{< fa brands youtube >}} YouTube](https://youtu.be/CASnObq0pI8) [{{< fa brands bilibili >}} Bilibili](https://b23.tv/INTonYQ)]{.video-links}
+
+Five 64×64 MLPs, averaged; the green curve is the 2.8 m of path the networks see.
+
+:::
+
+:::
+
+:::
+
 
 <!-- ============================================================ -->
 <!-- THE TASK -->
 <!-- ============================================================ -->
 
-::: {.block .prose}
+::: {.section-container}
 
-## The task
+## The Task {.section-title}
+
+::: {.content-text}
 
 Each track is a sequence of square gates (0.72 m frame, 0.40 m opening, at 0.7 m or 1.2 m height) plus thin vertical obstacle poles. Gates must be crossed in order and along their local $+x$ axis, five laps in a row. Touching a gate, a pole or the floor, or leaving the flight volume, ends the race. The provided tracks are a **circle** (4 gates), a **U-turn** with 180° hairpins (4 gates) and a figure-eight **lemniscate** (6 gates).
 
@@ -163,15 +168,18 @@ Each track is a sequence of square gates (0.72 m frame, 0.40 m opening, at 0.7 m
 
 :::
 
+:::
+
+
 <!-- ============================================================ -->
 <!-- METHOD I: MPCC -->
 <!-- ============================================================ -->
 
-::: {.block}
+::: {.section-container}
 
-## Method I: Model Predictive Contouring Control
+## Method I: Model Predictive Contouring Control {.section-title}
 
-::: {.pipeline aria-label="MPCC pipeline: gates to route, cubic spline, arc-length path with weights, MPCC solver, attitude and thrust command"}
+::: {.pipeline}
 
 ::: {.step}
 **Route** pre / center / post points per gate, detours
@@ -195,11 +203,11 @@ Each track is a sequence of square gates (0.72 m frame, 0.40 m opening, at 0.7 m
 
 :::
 
-::: {.caption .center}
+::: {.pipeline-caption}
 The path is replanned whenever the true pose of a gate or obstacle is revealed.
 :::
 
-::: {.prose}
+::: {.content-text}
 
 ### Contouring instead of tracking
 
@@ -209,10 +217,13 @@ $$
 \mathbf{e}^l = (\mathbf{t}^\top \mathbf{e})\,\mathbf{t}, \qquad \mathbf{e}^c = \mathbf{e} - \mathbf{e}^l .
 $$
 
-Every 10 ms we solve, over a 1 s horizon of 25 stages, subject to dynamics, input and corridor constraints,
+Every 10 ms we solve, over a 1 s horizon of 25 stages,
 
 $$
-\min_{\mathbf{u}_{0:N-1}} \; \sum_{k=0}^{N} \Big( q_l \|\mathbf{e}^l_k\|^2 + q_c(\theta_k)\,\|\mathbf{e}^c_k\|^2 + \|\mathbf{u}_k\|^2_{R} - \mu\, v_{\theta,k} \Big).
+\begin{aligned}
+\min_{\mathbf{u}_{0:N-1}} \; & \sum_{k=0}^{N} \Big( q_l \|\mathbf{e}^l_k\|^2 + q_c(\theta_k)\,\|\mathbf{e}^c_k\|^2 + \|\mathbf{u}_k\|^2_{R} - \mu\, v_{\theta,k} \Big) \\
+\text{s.t.} \; & \text{dynamics, input and corridor constraints.}
+\end{aligned}
 $$
 
 The progress reward $\mu v_\theta$ pushes the drone forward. The contour weight keeps it on the racing line. Because the speed profile is the result of the optimization, the drone slows down for tight turns and gates and speeds up on straights, and it may cut corners between gates.
@@ -244,13 +255,13 @@ Each Euler angle responds like a damped spring to its command (roll/pitch: 13.7 
 
 :::
 
-::: {.figure-pair}
+::: {.comparison-grid}
 
-::: {.fig .is-render}
+::: {.comparison-item}
 ![Reference path (light blue) and the 1 s MPC prediction (orange) in the simulator.](static/images/mpc_render.png){fig-alt="3D view: the drone between two gates with a light-blue reference path and an orange dotted MPC prediction"}
 :::
 
-::: {.fig .is-paper}
+::: {.comparison-item}
 ![Top view at two instants. The prediction (orange) cuts the corner between gates and rejoins the path inside them.](static/images/predictions.png){fig-alt="Two top-view snapshots of the path ahead and the MPC prediction, which leaves the path between gates and rejoins it inside the gates"}
 :::
 
@@ -258,15 +269,16 @@ Each Euler angle responds like a damped spring to its command (roll/pitch: 13.7 
 
 :::
 
+
 <!-- ============================================================ -->
 <!-- METHOD II: DISTILLATION -->
 <!-- ============================================================ -->
 
-::: {.block .shaded}
+::: {.section-container}
 
-## Method II: Distilling MPCC into a neural tracker
+## Method II: Distilling MPCC into a Neural Tracker {.section-title}
 
-::: {.pipeline aria-label="Distilled controller pipeline: same planner as MPCC, 140 features in the heading frame, ensemble of MLPs that outputs command changes, integrate and clip"}
+::: {.pipeline}
 
 ::: {.step}
 **Same planner** route, spline, $q_c$, corridor, replanning
@@ -286,11 +298,11 @@ Each Euler angle responds like a damped spring to its command (roll/pitch: 13.7 
 
 :::
 
-::: {.caption .center}
+::: {.pipeline-caption}
 Only the outlined orange block is learned. Everything else is shared with the MPCC controller.
 :::
 
-::: {.prose}
+::: {.content-text}
 
 ### Distill only the optimizer
 
@@ -312,33 +324,22 @@ PPO fine-tuning [5] with a shaped reward and MPCC as a safety monitor did not im
 
 :::
 
+
 <!-- ============================================================ -->
-<!-- STRESS TESTING & RESULTS -->
+<!-- RESULTS -->
 <!-- ============================================================ -->
 
-::: {.block}
+::: {.section-container}
 
-## Stress testing and results
+## Results {.section-title}
 
-::: {.figure-wide}
-
-::: {.only-light}
-![](static/images/topview-light.svg){fig-alt="Top views of five-lap flights on the circle, U-turn and lemniscate tracks; the MPCC and network trajectories nearly coincide"}
-:::
-
-::: {.only-dark}
-![](static/images/topview-dark.svg){fig-alt="Top views of five-lap flights on the circle, U-turn and lemniscate tracks; the MPCC and network trajectories nearly coincide"}
-:::
-
-::: {.caption}
-Five laps on each provided track (top view, same seed, default disturbances). [Blue]{.key-mpcc}: MPCC. [Orange]{.key-nn}: the distilled ensemble, which has never seen these tracks. Gate frames are drawn with the crossing direction as an arrow; × marks an obstacle. The two controllers fly almost the same racing line and their 5-lap times differ by at most 0.32 s.
-:::
-
-:::
+::: {.content-text}
 
 ### MPCC on the provided tracks
 
-Every track is flown under three conditions: nominal, shifted gates that are revealed late, and wind with gusts and battery sag.
+Every track is flown under three stress conditions: nominal, shifted gates that are revealed late, and wind with gusts and battery sag.
+
+:::
 
 ::: {.table-wrap}
 
@@ -360,7 +361,11 @@ Every track is flown under three conditions: nominal, shifted gates that are rev
 
 :::
 
+::: {.content-text}
+
 ### Learned controllers vs. the expert
+
+:::
 
 ::: {.table-wrap}
 
@@ -378,7 +383,7 @@ Provided tracks: 3 tracks × 3 conditions × 10 seeds, 5 laps. Random tracks: 48
 
 :::
 
-::: {.prose}
+::: {.content-text}
 
 - **Same speed as the expert.** On the nominal provided tracks the ensemble's 5-lap times are within 0.3 s of MPCC (circle 25.09 vs 25.21 s, U-turn 17.39 vs 17.08 s, lemniscate 26.36 vs 26.09 s), and up to 1 s slower in wind.
 - **Generalization.** The networks never saw the provided tracks, yet they finish 98 % of the races there and reach 94 % of MPCC's success on held-out random tracks.
@@ -388,51 +393,65 @@ Provided tracks: 3 tracks × 3 conditions × 10 seeds, 5 laps. Random tracks: 48
 
 :::
 
+
 <!-- ============================================================ -->
-<!-- BASELINE: SPLINE + CASCADED PID (midterm controller) -->
+<!-- QUALITATIVE COMPARISONS -->
 <!-- ============================================================ -->
 
-::: {.block .shaded}
+::: {.section-container}
 
-## Baseline: spline + cascaded PID
+## Qualitative Comparisons {.section-title}
 
-::: {.prose}
+::: {.content-text}
+
+### MPCC vs. the distilled ensemble
+
+:::
+
+::: {.wide-figure}
+![](static/images/topview-light.svg){fig-alt="Top views of five-lap flights on the circle, U-turn and lemniscate tracks; the MPCC and network trajectories nearly coincide"}
+:::
+
+::: {.figure-note}
+Five laps on each provided track (top view, same seed, default disturbances). [**Blue**]{style="color:#4a90d9"}: MPCC. [**Orange**]{style="color:#e07b1a"}: the distilled ensemble, which has never seen these tracks. Gate frames are drawn with the crossing direction as an arrow; × marks an obstacle. The two controllers fly almost the same racing line and their 5-lap times differ by at most 0.32 s.
+:::
+
+::: {.content-text}
+
+### Baseline: spline + cascaded PID
 
 Our first controller, presented at the midterm, separates **planning** from **control**. Before takeoff, a geometric planner turns the gate layout into a time-parameterized **cubic-spline trajectory**. It places waypoints before, at and after each gate so the drone crosses every gate head-on, and it adds detour waypoints whenever the next gate lies behind the drone. Segments that exceed an acceleration budget are retimed, so the drone slows down only in tight turns. An iterative repair step then pushes the path clear of any gate frame or stand it still touches. A **cascaded attitude controller** tracks this reference: a PID position loop with acceleration feedforward computes a desired thrust vector, which is mapped through the drone's identified thrust and attitude model into collective-thrust and roll/pitch commands, with limits on tilt and thrust.
 
-In the *crazyflow* simulator the drone finished all five laps on every track and passed every gate (20, 20 and 30 gates), reaching speeds close to 2 m/s. Mean tracking error stayed between 0.052 m and 0.058 m, and the maximum error was 0.133 m. These numbers come from one run per track with seed 0. Because it follows a fixed, timed reference, this controller is the starting point that MPCC improves on.
+In the *crazyflow* simulator the drone finished all five laps on every track and passed every gate (20, 20 and 30 gates), reaching speeds close to 2 m/s. Mean tracking error stayed between 0.052 m and 0.058 m, and the maximum error was 0.133 m. These numbers come from one run per track with seed 0. In each plot, the dashed gray line is the planned reference, the colored line is the flown trajectory shaded by speed, orange bars are gates with red arrows showing the crossing direction, and × marks an obstacle.
 
 :::
 
 ::: {.results-grid}
 
-::: {.fig}
+::: {.result-card}
 ![Circle track: 5 laps in 35.44 s, mean tracking error 0.052 m.](static/images/simulation1.jpg)
 :::
 
-::: {.fig}
+::: {.result-card}
 ![U-turn track: 5 laps in 27.00 s, mean tracking error 0.058 m.](static/images/simulation2.jpg)
 :::
 
-::: {.fig}
+::: {.result-card}
 ![Figure-eight track: 5 laps in 40.88 s, mean tracking error 0.057 m.](static/images/simulation3.jpg)
 :::
 
 :::
 
-::: {.caption}
-Dashed gray: planned reference. Colored line: flown trajectory, shaded by speed. Orange bars: gates, with red arrows for the crossing direction. ×: obstacle.
 :::
 
-:::
 
 <!-- ============================================================ -->
 <!-- STATE-BASED CONTROLLER (in progress) -->
 <!-- ============================================================ -->
 
-::: {.block}
+::: {.section-container}
 
-## State-based controller
+## State-Based Controller {.section-title}
 
 ::: {.in-progress}
 
@@ -444,13 +463,14 @@ All controllers above use the attitude interface. The environment also offers a 
 
 :::
 
+
 <!-- ============================================================ -->
 <!-- HARDWARE (in progress) -->
 <!-- ============================================================ -->
 
-::: {.block}
+::: {.section-container}
 
-## Hardware
+## Hardware {.section-title}
 
 ::: {.in-progress}
 
@@ -468,13 +488,16 @@ Flight recordings (stable hover and a simple track) will be added here. The soft
 
 :::
 
+
 <!-- ============================================================ -->
 <!-- LIMITATIONS -->
 <!-- ============================================================ -->
 
-::: {.block .prose}
+::: {.section-container}
 
-## Limitations and next steps
+## Limitations & Next Steps {.section-title}
+
+::: {.content-text}
 
 - **Sim-to-real.** Radio and estimator delay are not modelled. Forward-predicting the initial state over the known delay before solving (or before querying the network) is the standard remedy, and delay and estimator noise should be added as randomizations before training.
 - **Replanning latency.** The spline planner runs inside the control step, so a gate reveal can cost 0.1–0.3 s once. On hardware it belongs in a background thread, with the drone flying the old path until the new one is ready.
@@ -483,35 +506,59 @@ Flight recordings (stable hover and a simple track) will be added here. The soft
 
 :::
 
+:::
+
+
 <!-- ============================================================ -->
 <!-- TEAM ROLES -->
 <!-- ============================================================ -->
 
-::: {.block .prose}
+::: {.section-container}
 
-## Team roles
+## Team Roles {.section-title}
 
-::: {.roles}
+::: {.content-text}
 
-[Hanbin]{.role-name} [Classical control / planning]{.role-what}
-
-[Xiang]{.role-name} [Learning / training]{.role-what}
-
-[Shengrui]{.role-name} [Evaluation]{.role-what}
-
-[Siyuan]{.role-name} [Simulation integration / presentation]{.role-what}
+- **Hanbin:** classical control / planning
+- **Xiang:** learning / training
+- **Shengrui:** evaluation
+- **Siyuan:** simulation integration / presentation
 
 :::
 
 :::
+
+
+<!-- ============================================================ -->
+<!-- RELATED WORK / REFERENCES -->
+<!-- ============================================================ -->
+
+::: {.section-container}
+
+## References {.section-title}
+
+::: {.content-text}
+
+1. A. Romero, S. Sun, P. Foehn, D. Scaramuzza. [Model Predictive Contouring Control for Time-Optimal Quadrotor Flight](https://arxiv.org/abs/2108.13205). *IEEE Transactions on Robotics*, 2022.
+2. R. Verschueren et al. [acados: a modular open-source framework for fast embedded optimal control](https://docs.acados.org/). *Mathematical Programming Computation*, 2022.
+3. S. Ross, G. Gordon, D. Bagnell. [A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning](https://arxiv.org/abs/1011.0686). *AISTATS*, 2011.
+4. M. Laskey, J. Lee, R. Fox, A. Dragan, K. Goldberg. [DART: Noise Injection for Robust Imitation Learning](https://arxiv.org/abs/1703.09327). *CoRL*, 2017.
+5. J. Schulman, F. Wolski, P. Dhariwal, A. Radford, O. Klimov. [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347). arXiv:1707.06347, 2017.
+6. S. Levine. [CS 285: Deep Reinforcement Learning](https://rail.eecs.berkeley.edu/deeprlcourse/). Lecture course, University of California, Berkeley. Lecture 2 (behaviour cloning, distribution shift, DAgger).
+7. [ECE 484 Fall 2026 Quadrotor Project](https://safeautonomy-illinois.github.io/ece484-site/fall-2026/projects/quadrotor/), University of Illinois Urbana-Champaign.
+
+:::
+
+:::
+
 
 <!-- ============================================================ -->
 <!-- BIBTEX -->
 <!-- ============================================================ -->
 
-::: {.block .shaded .prose}
+::: {.section-container}
 
-## BibTeX
+## BibTeX {.section-title}
 
 ```bibtex
 @misc{zheng2026crazydrone,
@@ -525,27 +572,6 @@ Flight recordings (stable hover and a simple track) will be added here. The soft
 
 :::
 
-<!-- ============================================================ -->
-<!-- REFERENCES -->
-<!-- ============================================================ -->
-
-::: {.block .prose}
-
-## References
-
-::: {.refs}
-
-1. A. Romero, S. Sun, P. Foehn, D. Scaramuzza. [Model Predictive Contouring Control for Time-Optimal Quadrotor Flight](https://arxiv.org/abs/2108.13205). *IEEE Transactions on Robotics*, 2022.
-2. R. Verschueren et al. [acados: a modular open-source framework for fast embedded optimal control](https://docs.acados.org/). *Mathematical Programming Computation*, 2022.
-3. S. Ross, G. Gordon, D. Bagnell. [A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning](https://arxiv.org/abs/1011.0686). *AISTATS*, 2011.
-4. M. Laskey, J. Lee, R. Fox, A. Dragan, K. Goldberg. [DART: Noise Injection for Robust Imitation Learning](https://arxiv.org/abs/1703.09327). *CoRL*, 2017.
-5. J. Schulman, F. Wolski, P. Dhariwal, A. Radford, O. Klimov. [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347). arXiv:1707.06347, 2017.
-6. S. Levine. [CS 285: Deep Reinforcement Learning](https://rail.eecs.berkeley.edu/deeprlcourse/). Lecture course, University of California, Berkeley. Lecture 2 (behaviour cloning, distribution shift, DAgger).
-7. [ECE 484 Fall 2026 Quadrotor Project](https://safeautonomy-illinois.github.io/ece484-site/fall-2026/projects/quadrotor/), University of Illinois Urbana-Champaign.
-
-:::
-
-:::
 
 <!-- ============================================================ -->
 <!-- FOOTER -->
@@ -563,24 +589,11 @@ This website template is adapted from the
 <script>
   // Respect reduced motion: keep the teaser paused on its poster, with controls to play it.
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    document.querySelectorAll(".gate-frame video").forEach(function (v) {
+    document.querySelectorAll(".hero-teaser video").forEach(function (v) {
       v.removeAttribute("autoplay");
       v.pause();
       v.controls = true;
     });
   }
-
-  // Click-to-play YouTube embeds: show a local poster first, load the player only on click.
-  document.querySelectorAll(".yt").forEach(function (box) {
-    box.addEventListener("click", function () {
-      var iframe = document.createElement("iframe");
-      iframe.src = "https://www.youtube-nocookie.com/embed/" + box.dataset.id + "?autoplay=1&rel=0";
-      iframe.title = box.getAttribute("aria-label") || "YouTube video";
-      iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-      iframe.allowFullscreen = true;
-      box.replaceChildren(iframe);
-      box.classList.add("is-playing");
-    }, { once: true });
-  });
 </script>
 ```
