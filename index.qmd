@@ -561,7 +561,7 @@ Flight recordings (stable hover and a simple track) will be added here. The soft
 ## BibTeX {.section-title}
 
 ```bibtex
-@misc{
+@misc{zjuimeta2026crazydrone,
   title  = {Crazy Drone: Contouring MPC and a Distilled Neural Tracker for Crazyflie Racing},
   author = {Zheng, Hanbin and Wang, Shengrui and Wang, Siyuan and Li, Xiang},
   note   = {ECE 484 Final Project, University of Illinois Urbana-Champaign},
