@@ -455,14 +455,13 @@ In the *crazyflow* simulator the drone finished all five laps on every track and
 
 ::: {.in-progress}
 
-[In progress]{.status}
+[Flown on hardware · simulation stress tests in progress]{.status}
 
-The racing controllers above use the attitude interface. The environment also offers a state interface, in which the controller sends a 13-value full-state setpoint (position, velocity, acceleration, yaw and body rates) and the Crazyflie's onboard controller tracks it. We have two state-mode controllers so far:
+The racing controllers above use the attitude interface. The environment also offers a state interface, in which the controller sends a 13-value full-state setpoint (position, velocity, acceleration, yaw and body rates) and the Crazyflie's onboard controller tracks it.
 
-- **Hover controller.** Moves the position setpoint from the start position to 2 m above it at constant velocity over 20 s, then holds it there.
-- **Keyboard controller.** Takes off to 0.5 m and moves the position setpoint 0.1 m per key press, at most 0.3 m/s, inside the track's safety limits. We flew our first hardware hover with it (see [Hardware](#hardware)).
+Our state-based controller is a position-setpoint controller. After start it takes off to 0.5 m and holds that position on its own. Each key press moves the setpoint by 0.1 m; the commanded position follows the setpoint at no more than 0.3 m/s and always stays 0.3 m inside the track's safety limits. Pressing `l` ends the flight; on hardware the drone then hovers until the operator confirms landing. We use the same controller in simulation and on the real Crazyflie, where it flew our first stable hover (see [Hardware](#hardware)).
 
-Simulation recordings and stress tests of the state-based controllers will be added here.
+Stress tests in simulation (wind, battery sag and other disturbances applied while the drone holds its position) and their recordings will be added here.
 
 :::
 
@@ -481,7 +480,7 @@ Simulation recordings and stress tests of the state-based controllers will be ad
 
 [Hover demonstrated]{.status}
 
-We flew a stable hover on the real Crazyflie with the keyboard controller in state mode. The recording will be linked here.
+We flew a stable hover on the real Crazyflie with our state-based controller (see [State-Based Controller](#state-based-controller)). The recording will be linked here.
 
 <!-- TODO: embed the hover recording (YouTube) here -->
 
@@ -489,7 +488,7 @@ The software we fly the real Crazyflie with:
 
 - **Kill switch.** Pressing SPACE cuts the motors at any time.
 - **Stale-pose watchdog.** Cuts the motors if no motion-capture pose of the drone arrives for more than 100 ms. It watches the raw motion-capture messages, because the estimator keeps predicting poses after the drone is lost.
-- **Keyboard test flights.** A state-mode controller takes off to 0.5 m and holds position; each key press moves the target by 0.1 m, at most 0.3 m/s, inside the track's safety limits. We use it to test the radio, motion capture, estimator and safety features at low height before flying a racing controller.
+- **Low-height test flights.** The state-based controller lets us test the radio, motion capture, estimator and safety features at low height before flying a racing controller.
 - **Radio link check.** Counts acknowledged packets and reads battery voltage and supervisor state, without ever arming the drone.
 - **Startup procedure.** Written instructions for motion capture, estimator and deployment in our lab setup.
 
