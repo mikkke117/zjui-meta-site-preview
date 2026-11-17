@@ -457,7 +457,12 @@ In the *crazyflow* simulator the drone finished all five laps on every track and
 
 [In progress]{.status}
 
-All controllers above use the attitude interface. The environment also offers a state interface, in which the controller sends a 13-value full-state setpoint and the Crazyflie's onboard controller tracks it. Our state-based racing controller and its stress tests in simulation will be added here.
+The racing controllers above use the attitude interface. The environment also offers a state interface, in which the controller sends a 13-value full-state setpoint (position, velocity, acceleration, yaw and body rates) and the Crazyflie's onboard controller tracks it. We have two state-mode controllers so far:
+
+- **Hover controller.** Moves the position setpoint from the start position to 2 m above it at constant velocity over 20 s, then holds it there.
+- **Keyboard controller.** Takes off to 0.5 m and moves the position setpoint 0.1 m per key press, at most 0.3 m/s, inside the track's safety limits. We flew our first hardware hover with it (see [Hardware](#hardware)).
+
+Simulation recordings and stress tests of the state-based controllers will be added here.
 
 :::
 
@@ -470,13 +475,17 @@ All controllers above use the attitude interface. The environment also offers a 
 
 ::: {.section-container}
 
-## Hardware {.section-title}
+## Hardware {.section-title #hardware}
 
 ::: {.in-progress}
 
-[In progress]{.status}
+[Hover demonstrated]{.status}
 
-Flight recordings (stable hover and a simple track) will be added here. The software we fly the real Crazyflie with is ready:
+We flew a stable hover on the real Crazyflie with the keyboard controller in state mode. The recording will be linked here.
+
+<!-- TODO: embed the hover recording (YouTube) here -->
+
+The software we fly the real Crazyflie with:
 
 - **Kill switch.** Pressing SPACE cuts the motors at any time.
 - **Stale-pose watchdog.** Cuts the motors if no motion-capture pose of the drone arrives for more than 100 ms. It watches the raw motion-capture messages, because the estimator keeps predicting poses after the drone is lost.
