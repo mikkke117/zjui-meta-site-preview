@@ -446,22 +446,104 @@ In the *crazyflow* simulator the drone finished all five laps on every track and
 
 
 <!-- ============================================================ -->
-<!-- STATE-BASED CONTROLLER (in progress) -->
+<!-- STATE-BASED CONTROLLER -->
 <!-- ============================================================ -->
 
 ::: {.section-container}
 
 ## State-Based Controller {.section-title}
 
-::: {.in-progress}
-
-[Flown on hardware · simulation stress tests in progress]{.status}
+::: {.content-text}
 
 The racing controllers above use the attitude interface. The environment also offers a state interface, in which the controller sends a 13-value full-state setpoint (position, velocity, acceleration, yaw and body rates) and the Crazyflie's onboard controller tracks it.
 
 Our state-based controller is a position-setpoint controller. After start it takes off to 0.5 m and holds that position on its own. Each key press moves the setpoint by 0.1 m; the commanded position follows the setpoint at no more than 0.3 m/s and always stays 0.3 m inside the track's safety limits. Pressing `l` ends the flight; on hardware the drone then hovers until the operator confirms landing. We use the same controller in simulation and on the real Crazyflie, where it flew our first stable hover (see [Hardware](#hardware)).
 
-Stress tests in simulation (wind, battery sag and other disturbances applied while the drone holds its position) and their recordings will be added here.
+### Stress tests in simulation
+
+The drone takes off to 0.5 m and holds its start position for 30 s with no key presses, at a 25 Hz control rate. Each condition adds one disturbance on top of the small random force and start randomization that all four tests share. Wind and battery sag use the same values as the MPCC stress test above, so the two interfaces can be compared.
+
+:::
+
+::: {.table-wrap}
+
+| Condition | Disturbance | Survived | Deviation, mean / max [m] | Horizontal deviation, mean [m] |
+|:--|:--|--:|--:|--:|
+| Baseline | none | 10/10 | 0.076 / 0.112 | 0.008 |
+| Wind + battery sag | wind [0.91, 0.62, 0] m/s with 0.8 m/s gusts; thrust loss ramps to 10% at 25 s | 10/10 | 0.065 / 0.116 | 0.019 |
+| Collision impulses | 0.4 N push for 50 ms in a pseudo-random direction every 3 s, first at 2 s | 10/10 | 0.080 / **0.149** | 0.020 |
+| Weak motor | motor 0 missing 10% of its hover thrust | 10/10 | 0.077 / 0.127 | **0.025** |
+
+::: {.table-note}
+10 seeds per condition. Survived: no crash and never outside the safety limits. Deviation is the 3D distance to the hold point. Most of it is a steady height offset of about 0.08 m from the simulated onboard position controller, which is present even without disturbances, so the horizontal deviation shows the effect of each disturbance more clearly.
+:::
+
+:::
+
+::: {.content-text}
+
+- **Every run survived.** In all 40 runs the drone held its position and stayed inside the safety limits.
+- **Horizontal drift stays small.** It rises from 0.008 m without disturbances to at most 0.025 m with the weak motor, whose constant extra torque the onboard controller has to fight all the time.
+- **Impulses cause the largest peaks.** Each push briefly moves the drone up to 0.149 m from the hold point before the onboard controller brings it back.
+- **Battery sag partly hides the height offset.** The thrust loss pulls the drone down a little, against the 0.08 m offset, which is why the mean deviation with wind and battery sag is lower than the baseline.
+
+:::
+
+::: {.comparison-grid}
+
+::: {.comparison-item .video-item}
+
+### 1 · Baseline Hover
+
+{{< video https://www.youtube.com/embed/tTPvJ5Kj_yI >}}
+
+[[{{< fa brands youtube >}} YouTube](https://youtu.be/tTPvJ5Kj_yI)]{.video-links}
+
+No stress disturbance; the reference for the other three tests.
+
+:::
+
+::: {.comparison-item .video-item}
+
+### 2 · Wind Gusts + Battery Sag
+
+{{< video https://www.youtube.com/embed/w5vlEU6zzls >}}
+
+[[{{< fa brands youtube >}} YouTube](https://youtu.be/w5vlEU6zzls)]{.video-links}
+
+Same wind and battery values as the MPCC stress test.
+
+:::
+
+::: {.comparison-item .video-item}
+
+### 3 · Repeated Collision Impulses
+
+{{< video https://www.youtube.com/embed/qNZ3STJscx0 >}}
+
+[[{{< fa brands youtube >}} YouTube](https://youtu.be/qNZ3STJscx0)]{.video-links}
+
+A 0.4 N push every 3 s; the largest peak deviation of the four tests.
+
+:::
+
+::: {.comparison-item .video-item}
+
+### 4 · Weak Motor (−10% Thrust)
+
+{{< video https://www.youtube.com/embed/84grXt0WM2M >}}
+
+[[{{< fa brands youtube >}} YouTube](https://youtu.be/84grXt0WM2M)]{.video-links}
+
+A constant roll/pitch/yaw torque; the largest horizontal drift of the four tests.
+
+:::
+
+:::
+
+::: {.content-text}
+
+All four videos are rendered at real-time speed. Full playlist: [YouTube](https://www.youtube.com/playlist?list=PLZ_75Cro2Un4).
 
 :::
 
