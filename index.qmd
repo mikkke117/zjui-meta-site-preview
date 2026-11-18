@@ -147,6 +147,12 @@ Five 64×64 MLPs, averaged; the green curve is the 2.8 m of path the networks se
 
 :::
 
+::: {.content-text}
+
+More recordings: [state-based controller stress tests in simulation](#state-based-controller) and [hardware flight on a real Crazyflie](#hardware).
+
+:::
+
 :::
 
 
@@ -551,20 +557,22 @@ All four videos are rendered at real-time speed. Full playlist: [YouTube](https:
 
 
 <!-- ============================================================ -->
-<!-- HARDWARE (in progress) -->
+<!-- HARDWARE -->
 <!-- ============================================================ -->
 
 ::: {.section-container}
 
 ## Hardware {.section-title #hardware}
 
-::: {.in-progress}
+::: {.content-text}
 
-[Hover demonstrated]{.status}
+We flew our state-based controller (see [State-Based Controller](#state-based-controller)) on a real Crazyflie 2.1, with the pose from the motion capture system. The drone takes off, holds a stable hover, moves sideways in position steps from key presses at a constant height, and lands.
 
-We flew a stable hover on the real Crazyflie with our state-based controller (see [State-Based Controller](#state-based-controller)). The recording will be linked here.
+{{< video https://www.youtube.com/embed/vrF_shNfDUU >}}
 
-<!-- TODO: embed the hover recording (YouTube) here -->
+[[{{< fa brands youtube >}} YouTube](https://youtu.be/vrF_shNfDUU)]{.video-links}
+
+### Flight software
 
 The software we fly the real Crazyflie with:
 
