@@ -1,6 +1,6 @@
 ---
 pagetitle: "Crazy Drone | ECE 484 Team ZJUI Meta"
-description: "A Crazyflie 2.1 races through gates under wind, shifted gates and partial observability. A model predictive contouring controller finishes 90/90 simulated races; a 67k-parameter network ensemble distilled from it finishes 88/90 at 5x lower cost per step."
+description: "Attitude- and state-based control of a Crazyflie 2.1. A contouring MPC finishes 90/90 simulated races and a distilled network ensemble 88/90; a state-mode position controller survives 40/40 simulated stress tests and flies a stable hover on hardware."
 format:
   html:
     toc: false
@@ -9,7 +9,7 @@ format:
 
 ::: {.hero-section}
 
-# Crazy Drone: Contouring MPC and a Distilled Neural Tracker for Crazyflie Racing {.title}
+# Crazy Drone: Attitude and State-Based Control for Crazyflie Racing, from Simulation to Hardware {.title}
 
 ::: {.subtitle}
 ECE 484 Principles of Safe Autonomy, UIUC, Fall 2026 · Team ZJUI Meta
@@ -73,11 +73,13 @@ ECE 484 Principles of Safe Autonomy, UIUC, Fall 2026 · Team ZJUI Meta
 ## Abstract {.section-title}
 
 ::: {.abstract-text}
-We race a **Crazyflie 2.1** quadrotor through gate courses in the *crazyflow* MuJoCo simulator. The drone may only send collective-thrust and attitude commands at 100 Hz. It sees the true pose of a gate only when it is within 0.7 m of it, and it has to finish five laps without touching anything, under action noise, mass randomization, shifted gates, wind, gusts and battery sag.
+We fly a **Crazyflie 2.1** quadrotor through gate courses in the *crazyflow* MuJoCo simulator and on real hardware. The environment accepts two command interfaces at 100 Hz: **attitude** commands (collective thrust and roll, pitch, yaw), and **state** setpoints (position, velocity, acceleration and yaw) that the drone's onboard controller tracks. The drone sees the true pose of a gate only when it is within 0.7 m of it, and it has to finish five laps without touching anything, under action noise, mass randomization, shifted gates, wind, gusts and battery sag.
 
-Our first controller adapts **Model Predictive Contouring Control** (MPCC) [1] to this interface. Instead of tracking a timed reference, the optimizer chooses its own progress along an arc-length path and trades speed against a gate-aware contouring error. It uses the system-identified closed-loop attitude model of the drone, a soft safe corridor around gate frames and obstacles, a disturbance observer, and replanning whenever a gate is revealed. Solved with acados [2] in about 1.3 ms per step, it finishes **90 of 90** simulated races on the three provided tracks.
+For the attitude interface, we adapt **Model Predictive Contouring Control** (MPCC) [1]. Instead of tracking a timed reference, the optimizer chooses its own progress along an arc-length path and trades speed against a gate-aware contouring error. It uses the system-identified closed-loop attitude model of the drone, a soft safe corridor around gate frames and obstacles, a disturbance observer, and replanning whenever a gate is revealed. Solved with acados [2] in about 1.3 ms per step, it finishes **90 of 90** simulated races on the three provided tracks, including under shifted gates and wind with battery sag.
 
-Our second controller **distills the MPCC optimizer into small neural networks**. The planner is kept unchanged; only the solver is replaced. The networks are trained only on randomly generated tracks, first with behaviour cloning and then with DAgger, with the MPCC as expert and safety pilot. Along the way we found and fixed a margin bug in the expert itself. An ensemble of five 64×64 networks (67k parameters) finishes **88 of 90** races on the provided tracks, which it never saw in training, within 0.3 s of MPCC's lap times, at 0.7 ms per control step and with no optimizer on board.
+We then **distill the MPCC optimizer into small neural networks**, trained only on randomly generated tracks with behaviour cloning and DAgger. An ensemble of five 64×64 networks (67k parameters) finishes **88 of 90** races on the provided tracks, which it never saw in training, within 0.3 s of MPCC's lap times, at 0.7 ms per control step and with no optimizer on board.
+
+For the state interface, we use a **position-setpoint controller** that takes off, holds its position and moves in small steps on key presses. In simulation it survives **40 of 40** stress-test runs under wind with battery sag, repeated collision impulses and a weak motor, with at most 0.025 m mean horizontal drift. On a **real Crazyflie** with motion capture, the same controller takes off, holds a stable hover, moves in position steps and lands, which is our first step from simulation to hardware.
 :::
 
 :::
@@ -97,13 +99,13 @@ Our second controller **distills the MPCC optimizer into small neural networks**
 :::
 
 ::: {.stat}
-[17.0 s]{.num}
-[Mean time for 5 laps of the U-turn track (MPCC, nominal)]{.label}
+[0.7 ms]{.num}
+[Network control step, vs. 3.5 ms for MPCC (median, incl. features)]{.label}
 :::
 
 ::: {.stat}
-[0.7 ms]{.num}
-[Network control step, vs. 3.5 ms for MPCC (median, incl. features)]{.label}
+[40/40]{.num}
+[State-based controller stress-test runs survived in simulation]{.label}
 :::
 
 :::
@@ -597,6 +599,7 @@ The software we fly the real Crazyflie with:
 
 ::: {.content-text}
 
+- **Hardware racing.** So far only the state-based controller has flown on hardware, and only a hover with manual position steps. Next we fly a simple track on the real drone, first by sending a planned path through the gates as state setpoints, then with MPCC in attitude mode.
 - **Sim-to-real.** Radio and estimator delay are not modelled. Forward-predicting the initial state over the known delay before solving (or before querying the network) is the standard remedy, and delay and estimator noise should be added as randomizations before training.
 - **Replanning latency.** The spline planner runs inside the control step, so a gate reveal can cost 0.1–0.3 s once. On hardware it belongs in a background thread, with the drone flying the old path until the new one is ready.
 - **Supervision.** The ensemble still crashes in 2 of 90 races. A supervisor that hands control back to MPCC when the drone leaves the corridor, the same rule we used to collect data, would combine the network's speed with MPCC's recovery.
@@ -617,10 +620,10 @@ The software we fly the real Crazyflie with:
 
 ::: {.content-text}
 
-- **Hanbin:** classical control / planning
-- **Xiang:** learning / training
-- **Shengrui:** evaluation
-- **Siyuan:** simulation integration / presentation
+- **Hanbin:** classical control / planning; hardware debugging and flight recording
+- **Xiang:** learning / training; hardware setup
+- **Shengrui:** evaluation; state-based controller stress tests; hardware flight operation and safety tooling
+- **Siyuan:** simulation integration / presentation / project website; hardware setup
 
 :::
 
@@ -660,7 +663,7 @@ The software we fly the real Crazyflie with:
 
 ```bibtex
 @misc{zjuimeta2026crazydrone,
-  title  = {Crazy Drone: Contouring MPC and a Distilled Neural Tracker for Crazyflie Racing},
+  title  = {Crazy Drone: Attitude and State-Based Control for Crazyflie Racing, from Simulation to Hardware},
   author = {Zheng, Hanbin and Wang, Shengrui and Wang, Siyuan and Li, Xiang},
   note   = {ECE 484 Final Project, University of Illinois Urbana-Champaign},
   year   = {2026},
