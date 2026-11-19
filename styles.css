@@ -472,8 +472,8 @@ figure figcaption {
   border-radius: 2px;
   margin-right: 0.45em;
 }
-.swatch.mpcc { background: #4a90d9; }
-.swatch.nn { background: var(--color-gate); }
+.swatch.mpcc { background: #2a78d6; }
+.swatch.nn { background: #eb6834; }
 
 /* ---------- Note box ---------- */
 .note {
